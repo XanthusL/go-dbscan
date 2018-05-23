@@ -5,6 +5,12 @@ import (
 	"log"
 	"math"
 	"testing"
+	"image"
+	"image/color"
+	"image/png"
+	"os"
+	"math/rand"
+	"image/draw"
 )
 
 type SimpleClusterable struct {
@@ -125,4 +131,85 @@ func assertEquals(t *testing.T, expected, result int) {
 	if expected != result {
 		t.Errorf("Expected %d but got %d", expected, result)
 	}
+}
+
+type P struct {
+	Lng float64
+	Lat float64
+	ID  int64
+}
+
+func (p *P) GetID() int64 {
+	return p.ID
+}
+
+func (p *P) Distance(t interface{}) float64 {
+	target := t.(*P)
+	f := p.Lat - target.Lat
+	f2 := p.Lng - target.Lng
+	return math.Sqrt(f*f + f2*f2)
+}
+
+func TestOPTISC(t *testing.T) {
+	const count = 60
+	const size = 500
+	src := make([]Point, count)
+	for i := int64(0); i < count; i++ {
+		p := &P{
+			ID:  i,
+			Lat: float64(rand.Int31n(size)),
+			Lng: float64(rand.Int31n(size)),
+		}
+		if i%10 < 3 {
+			p.Lng = float64(i*size/count + (int64(p.Lng))%10)
+			p.Lat = float64(i*size/count + (int64(p.Lng))%6)
+		}
+
+		src[i] = p
+	}
+
+	result, distances := OPTISC(src, 3, 30)
+	uniform := image.NewUniform(color.White)
+	gray := image.NewGray(image.Rect(0, 0, size, size))
+	draw.Draw(gray, gray.Bounds(), uniform, image.ZP, draw.Src)
+	points := image.NewGray(image.Rect(0, 0, size, size))
+	draw.Draw(points, points.Bounds(), uniform, image.ZP, draw.Src)
+	for i, r := range result {
+		t.Logf("%#v %f", r, distances[i])
+		x := i * size / count
+		y := int(math.Ceil(distances[i]))
+		// draw result
+		drawPoint(x, y, gray)
+
+		// draw the origin point
+		pX := int(r.(*P).Lng)
+		pY := int(r.(*P).Lat)
+		drawPoint(pX, pY, points)
+	}
+	file, _ := os.Create("result.png")
+	pointsF, _ := os.Create("points.png")
+
+	e := png.Encode(file, gray)
+	t.Log(e)
+	e = png.Encode(pointsF, points)
+	t.Log(e)
+	t.Log(len(result))
+	file.Close()
+	pointsF.Close()
+}
+
+func drawPoint(x, y int, img draw.Image) {
+	// 4 points as a bigger point
+	y = img.Bounds().Dy() - y
+	img.Set(x, y, color.Black)
+	img.Set(x, y+1, color.Black)
+	img.Set(x+1, y, color.Black)
+	img.Set(x+1, y+1, color.Black)
+
+	// image:
+	//  ------->x
+	//  |
+	//  |
+	// \|/
+	//  Y  y
 }

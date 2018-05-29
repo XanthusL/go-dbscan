@@ -12,7 +12,7 @@ func OPTISC(src []Point,minPts int, e float64) ([]Point,[]float64){
 	coreDistance := make(map[int64]*zset.SortedSet)
 	// calculate core distances
 	for _, c := range src {
-		coreDistance[c.GetID()] = getCoreDistance(c, src)
+		coreDistance[c.GetID()] = getDistance(c, src)
 	}
 	sorted := zset.New()
 	result := make([]Point, 0)
@@ -59,7 +59,7 @@ func OPTISC(src []Point,minPts int, e float64) ([]Point,[]float64){
 	return result,dist
 }
 
-func getCoreDistance(p Point, src []Point) *zset.SortedSet {
+func getDistance(p Point, src []Point) *zset.SortedSet {
 	set := zset.New()
 	for _, target := range src {
 		d := p.Distance(target)

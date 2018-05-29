@@ -5,11 +5,11 @@
   branch = "master"
   name = "github.com/XanthusL/zset"
   packages = ["."]
-  revision = "61d026b4085e2f1d475cbe9b162a15cc7c2a2ce2"
+  revision = "8d126d1611586094967aa0d9fb96eb6a7a1d1395"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1609fdd91873a538d6e7d5fbea6894cf5f6e329f03368595e8ca037ef0ea3733"
+  inputs-digest = "9dba3e9f3bfb009743789c7af0f828ae4ba6fb3680ecc6af82ddf27853836cc3"
   solver-name = "gps-cdcl"
   solver-version = 1
